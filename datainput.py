@@ -1,7 +1,7 @@
 import csv
 import YardList
 
-#fhandle = input('Enter name of csv file: ')
+fhandle = input('Enter name of csv file: ')
 
 #with open(fhandle) as carinfo:
 car_sel = []
@@ -9,7 +9,7 @@ search_results ={}
 car_dict= {}
 header = ['SKU', 'Make', 'Model','Year', 'Location']
 
-with open('carslist.csv', 'r', newline='') as carinfo:
+with open(fhandle, 'r', newline='') as carinfo:
     with open('listresults.csv', 'w') as csv_file:
         #carfile = csv.writer(csv_file)
         carfile = csv.DictWriter(csv_file, header)
