@@ -12,57 +12,48 @@ if year_range != "": year_min, year_max = year_range.split('-')
 
 
 if select_make == '' and select_model == '' and year_range =='':
-    cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-    FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-    ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-    Cars.carrow_id = CarRow.id ''')
+    cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+    FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id ''')
 elif select_make == '':
     if select_model == '':
-        cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-        FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-        ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-        Cars.carrow_id = CarRow.id WHERE CarYear.yr BETWEEN ? and ? ''',
+        cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+        FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+        WHERE Cars.year BETWEEN ? AND ? ''',
          (year_min, year_max, ))
     elif year_range =='':
-        cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-        FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-        ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-        Cars.carrow_id = CarRow.id WHERE MODEL.NAME = ? ''',
-         (select_model.upper(), ))
+        cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+        FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+        WHERE Make_Model.mk_mdl LIKE ?  ''',
+         ('%'+ select_model+'%', ))
     else:
-        cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-        FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-        ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-        Cars.carrow_id = CarRow.id WHERE MODEL.NAME = ? and CarYear.yr BETWEEN ? and ? ''',
-         (select_model.upper(), year_min, year_max, ))
+        cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+        FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+        WHERE Make_Model.mk_mdl LIKE ? AND Cars.year BETWEEN ? AND ? ''',
+         ('%'+ select_model+'%', year_min, year_max, ))
 
 elif select_model == '':
     if year_range == '':
-        cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-        FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-        ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-        Cars.carrow_id = CarRow.id WHERE MAKE.name = ? ''',
-        (select_make.upper(), ))
+        cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+        FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+        WHERE Make_Model.mk_mdl LIKE ? ''',
+        (select_make+'%', ))
     else:
-        cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-        FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-        ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-        Cars.carrow_id = CarRow.id WHERE MAKE.name = ? AND  CarYear.yr BETWEEN ? and ? ''',
-        (select_make.upper(), year_min, year_max, ))
+        cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+        FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+        WHERE Make_Model.mk_mdl LIKE ? AND Cars.year BETWEEN ? AND ? ''',
+        (select_make +'%', year_min, year_max, ))
 
 elif year_range == '':
-    cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-    FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-    ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-    Cars.carrow_id = CarRow.id WHERE MAKE.name = ? AND MODEL.NAME = ? ''',
-     (select_make.upper(), select_model.upper(), ))
+    cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+    FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+    WHERE Make_Model.mk_mdl LIKE ? AND Make_Model.mk_mdl LIKE ? ''',
+     (select_make +'%', '%'+ select_model + '%', ))
 
 else:
-    cur.execute(''' SELECT CARS.sku, MAKE.NAME, Model.name, CarYear.yr, CarRow.loc
-    FROM Cars JOIN Make JOIN Model JOIN CarYear JOIN CarRow
-    ON Cars.make_id = Make.id and Cars.model_id = Model.id and Cars.caryear_id = CarYear.id and
-    Cars.carrow_id = CarRow.id WHERE MAKE.name = ? AND MODEL.NAME = ? and CarYear.yr BETWEEN ? and ? ''',
-     (select_make.upper(), select_model.upper(), year_min, year_max, ))
+    cur.execute(''' SELECT CARS.sku, Make_Model.mk_mdl, Cars.year, Cars.Location, Cars.Yard_date
+    FROM Cars JOIN Make_Model ON Cars.make_model_id = Make_model.id
+    WHERE Make_Model.mk_mdl LIKE ? AND Make_Model.mk_mdl LIKE ? and Cars.year BETWEEN ? AND ? ''',
+     (select_make + '%', '%' + select_model + '%', year_min, year_max, ))
 
 
 results = cur.fetchall()

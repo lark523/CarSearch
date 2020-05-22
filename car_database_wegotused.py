@@ -20,44 +20,24 @@ cur = conn.cursor()
 
 cur.executescript('''
 DROP TABLE IF EXISTS Cars;
-DROP TABLE IF EXISTS Make;
-DROP TABLE IF EXISTS Model;
-DROP TABLE IF EXISTS CarYear;
-DROP TABLE IF EXISTS CarRow;
+DROP TABLE IF EXISTS Make_Model;
 
-CREATE TABLE Make (
+CREATE TABLE Make_Model (
     id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    name    TEXT UNIQUE
+    mk_mdl    TEXT UNIQUE
 );
-CREATE TABLE Model (
-    id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    name    TEXT UNIQUE
 
-);
-CREATE TABLE CarYear (
-    id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    yr      INTEGER UNIQUE
-
-);
-CREATE TABLE CarRow (
-    id      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-    loc     INTEGER
-
-);
 
 CREATE TABLE Cars (
-    id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    sku         TEXT UNIQUE,
-    make_id     INTEGER,
-    model_id    INTEGER,
-    caryear_id     INTEGER,
-    carrow_id      INTEGER
+    id              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    sku             TEXT UNIQUE,
+    make_model_id   INTEGER,
+    year            INTEGER,
+    location        INTEGER,
+    yard_date       INTEGER
 
 );
 ''')
-
-#cur.execute('''
-#CREATE TABLE Cars (SKU INTEGER, make TEXT, model TEXT, Vehicle Row INTEGER)''')
 
 
 html = urllib.request.urlopen(url, context=ctx).read()
@@ -77,37 +57,29 @@ for tags in tr_tags:
     count = 0
     for tag in td_tags:
         car_dict[Categories[count]] = tag.get_text()
-        print(tag.get_text())
+        #print(tag.get_text())
         count +=1
     #print(car_dict)
     #print(car_dict.keys())
 
-    make = car_dict['Make']
-    model = car_dict['Model']
-    year = car_dict['Year']
-    SKU = car_dict['SKU']
-    Row = car_dict['Vehicle Row']
+    #temp_make = car_dict['Make']
+    #temp_model = car_dict['Model']
+    temp_make_model = car_dict['Make'] + ' ' + car_dict['Model']
+    temp_year = car_dict['Year']
+    temp_SKU = car_dict['SKU']
+    temp_Row = car_dict['Vehicle Row']
+    temp_date = car_dict['Yard Date']
 
-    cur.execute('''INSERT OR IGNORE INTO Make (name) VALUES ( ? )''', (make, ))
-    cur.execute('SELECT id FROM Make WHERE name = ? ', (make, ))
-    make_id = cur.fetchone()[0]
+    cur.execute('''INSERT OR IGNORE INTO Make_Model (mk_mdl) VALUES ( ? )''', (temp_make_model, ))
+    cur.execute('SELECT id FROM Make_Model WHERE mk_mdl = ? ', (temp_make_model, ))
+    make_model_id = cur.fetchone()[0]
 
-    cur.execute('''INSERT OR IGNORE INTO Model (name) VALUES ( ? )''', (model, ))
-    cur.execute('SELECT id FROM Model WHERE name = ? ', (model, ))
-    model_id = cur.fetchone()[0]
 
-    cur.execute('''INSERT OR IGNORE INTO CarYear (yr) VALUES ( ? )''', (year, ))
-    cur.execute('SELECT id FROM CarYear WHERE yr = ? ', (year, ))
-    caryear_id = cur.fetchone()[0]
-
-    cur.execute('''INSERT OR IGNORE INTO CarRow (loc) VALUES ( ? )''', (Row, ))
-    cur.execute('SELECT id FROM CarRow WHERE loc = ? ', (Row, ))
-    carrow_id = cur.fetchone()[0]
-
-    cur.execute('''INSERT OR REPLACE INTO Cars (sku, make_id, model_id, caryear_id, carrow_id) VALUES (?, ?, ?, ?, ?)''',
-        (SKU, make_id, model_id, caryear_id, carrow_id) )
+    cur.execute('''INSERT OR REPLACE INTO Cars (sku, make_model_id, year, location, yard_date)
+    VALUES (?, ?, ?, ?, ?)''', (temp_SKU, make_model_id, temp_year, temp_Row, temp_date) )
 
 conn.commit()
+print("Data retrieved from ", url)
 
 #print("Creating database table...")
 #site_table = cur.execute(''' SELECT Cars.sku, Make.name, Model.name, CarYear.yr, CarRow.loc
